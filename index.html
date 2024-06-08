@@ -304,7 +304,7 @@
 
 
     <script>
-        const VERSION = "v0.2.3 (beta)";
+        const VERSION = "v0.2.4 (beta)";
         const TITLE = `antiBallsheet game by dph, ${VERSION}`;
         const FIELD_SIZE_PX = 550;
         const DEFAULTS = {
@@ -356,8 +356,12 @@
 
             }
             generateRandomPositions() {
+                this.randomPositions = [];
                 for (let i = 0; i < this.ballToCatch; i++) {
-                    this.randomPositions.push(this.getRandomPosition());
+                    const { x, y } = this.getRandomPosition();
+                    const hitboxTransform = `translate3d(${x - this.cursorRadius}px, ${y - this.cursorRadius}px, 0)`;
+                    const ballTransform = `translate3d(${x}px, ${y}px, 0)`;
+                    this.randomPositions.push({ hitboxTransform, ballTransform });
                 }
                 this.currentPositionIndex = 0;
             }
@@ -406,9 +410,9 @@
                 return Math.sqrt(dx * dx + dy * dy);
             }
             moveBall() {
-                const { x, y } = this.randomPositions[this.currentPositionIndex++];
-                this.hitbox.style.transform = `translate3d(${x - this.cursorRadius}px, ${y - this.cursorRadius}px, 0)`;
-                this.ball.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+                const { hitboxTransform, ballTransform } = this.randomPositions[this.currentPositionIndex++];
+                this.hitbox.style.transform = hitboxTransform;
+                this.ball.style.transform = ballTransform;
                 this.lastHitTime = Date.now();
             }
 

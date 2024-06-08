@@ -466,11 +466,13 @@
                 document.body.style.cursor = 'default';
                 const totalTime = (Date.now() - this.startTime) / 1000;
                 const averageTime = (this.reactionTimes.reduce((a, b) => a + b, 0) / this.reactionTimes.length).toFixed(3);
+                const minTime = Math.min(...this.reactionTimes);
+                const maxTime = Math.max(...this.reactionTimes);
                 const reactionTimesList = this.reactionTimes.join(', ');
                 this.winMessage.innerHTML = `
                     <p>Congratulations!<br>
                     You hit all <span class="scoreValue">${this.ballToCatch}</span> balls in <span class="scoreValue">${totalTime.toFixed(3)}s</span>!<br>
-                    Average reaction time: <span class="scoreValue">${averageTime}s</span></p>
+                    Average reaction time: <span class="scoreValue" title="min: ${minTime} / max: ${maxTime}">${averageTime}s</span></p>
 					Balls size: <span class="scoreValue">${this.ballSize}</span><br>
 					Cursor size: <span class="scoreValue">${this.cursorSize}</span><br>
 					Minimal distance: <span class="scoreValue">${this.distanceRatio * 100}%</span>

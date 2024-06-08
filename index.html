@@ -304,14 +304,14 @@
 
 
     <script>
-        const VERSION = "v0.2.4 (beta)";
+        const VERSION = "v0.2.5 (beta)";
         const TITLE = `antiBallsheet game by dph, ${VERSION}`;
         const FIELD_SIZE_PX = 550;
         const DEFAULTS = {
             'balls-to-catch': 100,
             'ball-size': 15,
             'cursor-size': 16,
-            'minimal-distance': 30
+            'minimal-distance': 50
         };
         function setCursor(size) {
             const html = document.documentElement;
@@ -456,19 +456,18 @@
                 this.ballsLeftDisplay.textContent = `Balls Left: ${this.ballsLeft}`;
             }
             handleHit() {
+                this.ballsLeft--;
+                const lastHitTime = this.lastHitTime;
                 if (this.ballsLeft > 0) {
-                    const hitTime = Date.now();
-                    const reactionTime = (hitTime - this.lastHitTime) / 1000;
-                    this.reactionTimes.push(reactionTime);
-
-                    this.ballsLeft--;
-                    this.audio.play();
-                    this.updateDisplay();
-                    if (this.ballsLeft > 0) {
-                        this.moveBall();
-                    } else {
-                        this.endGame();
-                    }
+                    this.moveBall();
+                }
+                const hitTime = Date.now();
+                const reactionTime = (hitTime - lastHitTime) / 1000;
+                this.reactionTimes.push(reactionTime);
+                this.audio.play();
+                this.updateDisplay();
+                if (this.ballsLeft === 0) {
+                    this.endGame();
                 }
             }
             launchGame(){

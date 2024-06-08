@@ -227,7 +227,6 @@
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
 </head>
 
 <body>
@@ -433,8 +432,6 @@
             handleMouseMove(e) {
                 const x = e.clientX - this.cursorRadius;
                 const y = e.clientY - this.cursorRadius;
-                //this.customCursor.style.left = `${x}px`;
-                //this.customCursor.style.top = `${y}px`;
                 this.customCursor.style.transform = `translate3d(${x}px, ${y}px, 0)`;
             }
 
@@ -521,7 +518,6 @@
             }
 
             addEventListeners() {
-                //document.addEventListener('mousemove', _.throttle(this.handleMouseMove.bind(this), 2));
                 document.addEventListener('mousemove', this.handleMouseMove.bind(this));
                 this.hitbox.addEventListener('mouseover', this.handleHit.bind(this));
                 document.addEventListener('keydown', this.handleRestart.bind(this));
@@ -562,8 +558,6 @@
             var storedSettings = localStorage.getItem('settings');
             if (storedSettings) {
                 var settings = JSON.parse(storedSettings);
-
-                // Mapping settings keys to slider IDs
                 var settingsMap = {
                     ballsToCatch: 'balls-to-catch',
                     ballSize: 'ball-size',
@@ -581,7 +575,6 @@
                     }
                 }
             } else {
-                // If no settings are found in local storage, set to default
                 setToDefault();
             }
         }

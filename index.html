@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" href="icon.png">
+    <title>antiBallsheet</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #111;
+            color: white;
+			align-items: flex-start;
+			overflow: hidden;
+
+        }
+        .game-container {
+            position: relative;
+			top: 5%;
+            background-color: #000;
+            border: 2px solid rgba(0,255,255, 0.5);
+            display: none;
+			border-radius: 5%;
+            justify-content: center;
+            align-items: center;
+        }
+        .ball {
+            position: absolute;
+            background-color: #fa96c8;
+            border-radius: 50%;
+        }
+        .hitbox {
+            position: absolute;
+            border-radius: 50%;
+            background-color: transparent;
+        }
+        .custom-cursor {
+            position: fixed;
+            background-color: white;
+            border-radius: 50%;
+            pointer-events: none; /* Make the custom cursor non-interactive */
+            border: 2px solid black;
+			display: none;
+        }
+        .info {
+            position: absolute;
+            top: 10px;
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0 10px;
+            box-sizing: border-box;
+			opacity: 0.5;
+        }
+        .info div {
+			color: cyan;
+            font-size: 24px;
+        }
+        .win-message {
+            display: none;
+            font-size: 25px;
+            text-align: center;
+			min-width: 800px;
+			max-width: 800px;
+			justify-content: center;
+        }
+        .start-button-container {
+            display: block;
+            justify-content: center;
+            align-items: center;
+			position: relative;
+			top: 50px;
+        }
+        .start-button {
+			min-width: 800px;
+			border: 1px solid cyan;
+            padding: 10px 10px;
+			background-color: #111;
+			border-radius: 50px;
+			color: white;
+            font-size: 16px;
+        }
+		.scoreValue {
+			color: cyan;
+			font-weight: bold;
+		}
+		#reaction-times-list {
+			font-size: 18px;
+			max-height: 100px;
+			overflow-y: scroll;
+			word-break: break-all;
+			white-space: normal;
+		}
+		
+		
+		.settings-container {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			margin-top: 20px;
+		}
+
+		.setting {
+			margin: 10px 0;
+			width: 80%;
+		}
+
+		label {
+			display: block;
+			margin-bottom: 5px;
+			font-size: 14px;
+			text-align: center;
+		}
+
+		.range-slider {
+			-webkit-appearance: none;
+			width: 100%;
+			margin: 5px 0;
+			height: 10px;
+			background: #333;
+			border-radius: 5px;
+			outline: none;
+			transition: background 0.3s;
+
+			/* Track styling */
+			background: linear-gradient(to right, #008b8b, #AA336A);
+		}
+
+		/* Slider Thumb */
+		.range-slider::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			appearance: none;
+			width: 20px;
+			height: 20px;
+			border-radius: 50%;
+			background: white	;
+			cursor: pointer;
+			box-shadow: 0 0 10px rgba(26, 115, 232, 0.5);
+			transition: background 0.3s, box-shadow 0.3s;
+		}
+
+		.range-slider::-moz-range-thumb {
+			width: 20px;
+			height: 20px;
+			border-radius: 50%;
+			background: #1a73e8;
+			cursor: pointer;
+			box-shadow: 0 0 10px rgba(26, 115, 232, 0.5);
+			transition: background 0.3s, box-shadow 0.3s;
+		}
+
+		/* Hover effects for the thumb */
+		.range-slider::-webkit-slider-thumb:hover,
+		.range-slider::-moz-range-thumb:hover {
+			background: #5591e8;
+			box-shadow: 0 0 15px rgba(26, 115, 232, 0.7);
+		}
+
+		/* Active effects for the thumb */
+		.range-slider::-webkit-slider-thumb:active,
+		.range-slider::-moz-range-thumb:active {
+			background: #3367d6;
+			box-shadow: 0 0 20px rgba(26, 115, 232, 1);
+		}
+
+		.range-labels {
+			display: flex;
+			justify-content: space-between;
+			font-size: 12px;
+			color: #888888;
+		}
+		#cursor-size {
+			direction: rtl;
+		}
+		#ball-size {
+			direction: rtl;
+		}
+		/* Add this CSS to style the default button */
+		.default-button {
+			background-color: pink;
+			color: black;
+			border: none;
+			padding: 20px 20px;
+			font-size: 16px;
+			font-weight: bold;
+			cursor: pointer;
+			border-radius: 20px;
+			margin-top: 20px;
+			transition: background-color 0.3s;
+		}
+
+		.default-button:hover {
+			background-color: cyan;
+}
+		
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div class="start-button-container">
+    <button disabled="true" class="start-button">Press R to Start or Reset the game<br>Press ESC to Stop and configure the game<br>Press F11 to enter Full-Screen mode in your browser</button>
+    <div class="win-message" id="win-message">
+        <canvas id="reaction-time-chart"></canvas>
+    </div>
+    <div class="settings-container">
+        <div class="setting">
+            <label for="balls-to-catch">Balls to catch: <span id="balls-to-catch-value">350</span></label>
+            <input type="range" id="balls-to-catch" class="range-slider" min="50" max="500" value="350" step="10">
+            <div class="range-labels">
+                <span>50</span>
+                <span>100</span>
+				<span>150</span>
+                <span>200</span>
+                <span>250</span>
+                <span>300</span>
+                <span>350</span>
+				<span>400</span>
+				<span>450</span>
+				<span>500</span>
+            </div>
+        </div>
+        <div class="setting">
+            <label for="ball-size">Ball size: <span id="ball-size-value">10%</span></label>
+            <input type="range" id="ball-size" class="range-slider" min="5" max="20" value="10">
+            <div class="range-labels">
+                <span>20%</span>
+                <span>15%</span>
+                <span>10%</span>
+                <span>5%</span>
+            </div>
+        </div>
+        <div class="setting">
+            <label for="cursor-size">Cursor size: <span id="cursor-size-value">10%</span></label>
+            <input type="range" id="cursor-size" class="range-slider" min="5" max="20" value="10">
+            <div class="range-labels">
+                <span>20%</span>
+                <span>15%</span>
+                <span>10%</span>
+                <span>5%</span>
+            </div>
+        </div>
+        <div class="setting">
+            <label for="minimal-distance">Minimal Distance: <span id="minimal-distance-value">33%</span></label>
+            <input type="range" id="minimal-distance" class="range-slider" min="0" max="50" value="33">
+            <div class="range-labels">
+				<span>0%</span>
+				<span>10%</span>
+				<span>20%</span>
+                <span>30%</span>
+                <span>40%</span>
+                <span>50%</span>
+            </div>
+        </div>
+		<button id="set-to-default" class="default-button">Set to Default</button>
+    </div>
+</div>
+	<div class="info">			
+            <div id="timer"></div>
+			<div id="title">antiBallsheet game by dph, v0.1.0 (beta)</div>
+            <div id="balls-left"></div>
+        </div>
+    <div class="game-container">
+        <div class="hitbox"></div>
+        <div class="ball"></div>
+    </div> 
+    <div class="custom-cursor"></div>  
+    
+
+    <script>
+	const FIELD_SIZE_PX = 800;
+	const DEFAULTS = {
+		'balls-to-catch': 350,
+		'ball-size': 10,
+		'cursor-size': 10,
+		'minimal-distance': 33
+	};
+			
+        class AntiBallsheetGame {
+            constructor(gameContainer, ball, hitbox, customCursor, timerDisplay, ballsLeftDisplay, winMessage, startButton, startButtonContainer) {
+				this.fieldSize = FIELD_SIZE_PX;
+                this.gameContainer = gameContainer;
+                this.ball = ball;
+                this.hitbox = hitbox;
+                this.customCursor = customCursor;
+                this.timerDisplay = timerDisplay;
+                this.ballsLeftDisplay = ballsLeftDisplay;
+                this.winMessage = winMessage;
+                this.startButton = startButton;
+                this.startButtonContainer = startButtonContainer;
+                
+                this.audio = new Audio('boop.wav');
+                
+                this.interval = null;
+                this.startTime = null;
+				this.lastHitTime = null;
+                this.reactionTimes = [];
+				this.gameContainer.oncontextmenu = function() { return false; }
+				this.gameContainer.onmousedown   = function() { return false; }
+                this.addEventListeners();
+				
+            }
+
+            configure() {
+				let currentSettings = getSettings();
+                this.ballToCatch = currentSettings.ballsToCatch;
+				
+                this.ballSize = this.fieldSize*currentSettings.ballSize/100; 
+				this.cursorSize = this.fieldSize*currentSettings.cursorSize/100;
+				this.distanceRatio = currentSettings.minimalDistance/100;
+				
+				this.minDistance = (this.fieldSize-this.ballSize)*this.distanceRatio;
+            }
+
+            updateSizes() {
+                this.ball.style.width = this.ball.style.height = `${this.ballSize}px`;
+                this.customCursor.style.width = this.customCursor.style.height = `${this.cursorSize}px`;
+                this.gameContainer.style.width = this.gameContainer.style.height = `${this.fieldSize}px`;
+
+                this.ballRadius = this.ball.clientWidth / 2;
+                this.cursorRadius = this.customCursor.clientWidth / 2;
+                this.hitboxRadius = this.ballRadius + this.cursorRadius;
+
+                this.hitbox.style.width = this.hitbox.style.height = `${this.hitboxRadius * 2}px`;
+            }
+            getRandomPosition() {
+				let x, y;
+				do {
+					let maxW = this.gameContainer.clientWidth - this.ball.clientWidth;
+					let maxH = this.gameContainer.clientHeight - this.ball.clientHeight;
+					let cx = maxW / 2, cy = maxH / 2;
+					let a = maxW / 2;
+					let b = maxH / 2;
+					let t = Math.random() * 2 * Math.PI;
+					let r = Math.sqrt(Math.random());
+					x = cx + a * r * Math.cos(t);
+					y = cy + b * r * Math.sin(t);
+				} while (this.distanceBetweenPoints(x, y, this.latestX, this.latestY) < this.minDistance);
+				this.latestX = x;
+				this.latestY = y;
+				return { x, y };
+			}
+			distanceBetweenPoints(x1, y1, x2, y2) {
+				const dx = x2 - x1;
+				const dy = y2 - y1;
+				return Math.sqrt(dx * dx + dy * dy);
+			}
+            moveBall() {
+                const { x, y } = this.getRandomPosition();
+                this.ball.style.left = `${x}px`;
+                this.ball.style.top = `${y}px`;
+                this.hitbox.style.left = `${x - this.cursorRadius}px`;
+                this.hitbox.style.top = `${y - this.cursorRadius}px`;
+                this.lastHitTime = Date.now();
+            }
+
+            updateTimer() {
+                const elapsedTime = (Date.now() - this.startTime) / 1000;
+                this.timerDisplay.textContent = `Time: ${elapsedTime.toFixed(2)}s`;
+            }
+
+            startGame() {
+				this.configure();
+				document.documentElement.style.overflow = "hidden";
+				document.body.style.overflow = "hidden";
+				clearInterval(this.interval);
+				document.body.style.cursor = 'none';
+                this.reactionTimes = [];
+                this.ballsLeft = this.ballToCatch;
+                this.startTime = Date.now();
+                this.lastHitTime = Date.now();
+                this.interval = setInterval(this.updateTimer.bind(this), 100);
+                this.updateDisplay();
+                this.gameContainer.style.display = 'flex';
+                this.startButtonContainer.style.display = 'none';
+				this.customCursor.style.display = 'flex';
+				this.updateSizes();
+				this.moveBall();
+            }
+
+            endGame() {
+				document.documentElement.style.overflow = "visible";
+				document.body.style.overflow = "visible";
+                clearInterval(this.interval);
+                this.showResults();
+                this.startButtonContainer.style.display = 'block';
+                this.gameContainer.style.display = 'none';
+            }
+
+            updateDisplay() {
+                this.ballsLeftDisplay.textContent = `Balls Left: ${this.ballsLeft}`;
+            }
+
+            handleMouseMove(e) {
+                const x = e.clientX - this.cursorRadius;
+                const y = e.clientY - this.cursorRadius;
+                this.customCursor.style.left = `${x}px`;
+                this.customCursor.style.top = `${y}px`;
+            }
+
+            handleHit() {
+                if (this.ballsLeft > 0) {
+                    const hitTime = Date.now();
+                    const reactionTime = (hitTime - this.lastHitTime) / 1000;
+                    this.reactionTimes.push(reactionTime);
+
+                    this.ballsLeft--;
+                    this.audio.play();
+                    this.updateDisplay();
+                    if (this.ballsLeft > 0) {
+                        this.moveBall();
+                    } else {
+                        this.endGame();
+                    }
+                }
+            }
+
+            handleRestart(e) {
+                if (e.key === 'r' || e.key === 'R' || e.key === 'К' || e.key === 'к') {
+                    this.winMessage.style.display = 'none';
+                    this.startButtonContainer.style.display = 'block';
+                    this.startGame();
+                }
+				if (e.key === "Escape") {
+					this.endGame();
+					this.winMessage.style.display = 'none';
+					this.timerDisplay.textContent = "";
+					this.ballsLeftDisplay.textContent = "";
+				}
+            }
+
+            showResults() {
+				this.customCursor.style.display = 'none';
+				document.body.style.cursor = 'default';
+                const totalTime = (Date.now() - this.startTime) / 1000;
+                const averageTime = (this.reactionTimes.reduce((a, b) => a + b, 0) / this.reactionTimes.length).toFixed(3);
+				const reactionTimesList = this.reactionTimes.join(', ');
+                this.winMessage.innerHTML = `
+                    <p>Congratulations!<br>
+                    You hit all <span class="scoreValue">${this.ballToCatch}</span> balls in <span class="scoreValue">${totalTime.toFixed(3)}s</span>!<br>
+                    Average reaction time: <span class="scoreValue">${averageTime}s</span></p>
+					Balls size: <span class="scoreValue">${this.ballSize}</span><br>
+					Cursor size: <span class="scoreValue">${this.cursorSize}</span><br>
+					Minimal distance: <span class="scoreValue">${this.distanceRatio*100}%</span>
+					
+                    </p>
+                    <canvas id="reaction-time-chart"></canvas>
+					<p id="reaction-times-list">${reactionTimesList}</p>
+                `;
+                this.winMessage.style.display = 'block';
+                this.displayChart();
+            }
+
+            displayChart() {
+                const ctx = document.getElementById('reaction-time-chart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: this.reactionTimes.map((_, index) => index + 1),
+                        datasets: [{
+                            label: 'Reaction Time (s)',
+                            data: this.reactionTimes,
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        },
+						animation: {
+							duration: 0
+						}
+                    }
+                });
+            }
+
+            addEventListeners() {
+                document.addEventListener('mousemove', this.handleMouseMove.bind(this));
+                this.hitbox.addEventListener('mouseover', this.handleHit.bind(this));
+                document.addEventListener('keydown', this.handleRestart.bind(this));
+                this.startButton.addEventListener('click', this.startGame.bind(this));
+            }
+        }
+		document.getElementById('balls-to-catch').addEventListener('input', function() {
+			updateLabel('balls-to-catch');
+		});
+
+		document.getElementById('ball-size').addEventListener('input', function() {
+			updateLabel('ball-size');
+		});
+
+		document.getElementById('cursor-size').addEventListener('input', function() {
+			updateLabel('cursor-size');
+		});
+
+		document.getElementById('minimal-distance').addEventListener('input', function() {
+			updateLabel('minimal-distance');
+		});
+		document.getElementById('set-to-default').addEventListener('click', function() {
+			setToDefault();
+		});
+		function setToDefault() {
+			for (var setting in DEFAULTS) {
+				var slider = document.getElementById(setting);
+				var value = DEFAULTS[setting];
+				slider.value = value;
+				updateLabel(setting);
+			}
+		}
+		function updateLabel(setting) {
+			var slider = document.getElementById(setting);
+			var valueLabel = document.getElementById(setting + '-value');
+			var value = slider.value;
+			valueLabel.textContent = value + (setting.includes('size') || setting === 'minimal-distance' ? '%' : '');
+		}
+
+		function getSettings() {
+			var ballsToCatch = parseInt(document.getElementById('balls-to-catch').value);
+			var ballSize = parseInt(document.getElementById('ball-size').value);
+			var cursorSize = parseInt(document.getElementById('cursor-size').value);
+			var minimalDistance = parseInt(document.getElementById('minimal-distance').value);
+
+			return {
+				ballsToCatch: ballsToCatch,
+				ballSize: ballSize,
+				cursorSize: cursorSize,
+				minimalDistance: minimalDistance
+			};
+		}
+        const game = new AntiBallsheetGame(
+            document.querySelector('.game-container'),
+            document.querySelector('.ball'),
+            document.querySelector('.hitbox'),
+            document.querySelector('.custom-cursor'),
+            document.getElementById('timer'),
+            document.getElementById('balls-left'),
+            document.getElementById('win-message'),
+            document.querySelector('.start-button'),
+            document.querySelector('.start-button-container')
+        );
+    </script>
+</body>
+</html>

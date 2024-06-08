@@ -22,7 +22,7 @@
         }
 
         .game-container {
-            position: relative;
+            position: fixed;
             top: 5%;
             background-color: #000;
             border: 2px solid rgba(0, 255, 255, 0.5);
@@ -195,6 +195,12 @@
         #ball-size {
             direction: rtl;
         }
+		#timer {
+			min-width: 150px;
+		}
+		#balls-left {
+			min-width: 150px;
+		}
 
         /* Add this CSS to style the default button */
         .default-button {
@@ -279,7 +285,7 @@
     </div>
     <div class="info">
         <div id="timer"></div>
-        <div id="title">antiBallsheet game by dph, v0.1.0 (beta)</div>
+        <div id="title"></div>
         <div id="balls-left"></div>
     </div>
     <div class="game-container">
@@ -290,6 +296,8 @@
 
 
     <script>
+        const VERSION = "v0.1.1 (beta)";
+        const TITLE = `antiBallsheet game by dph, ${VERSION}`;
         const FIELD_SIZE_PX = 800;
         const DEFAULTS = {
             'balls-to-catch': 350,
@@ -383,6 +391,7 @@
 
             startGame() {
                 this.configure();
+                document.getElementById('title').textContent = "";
                 document.documentElement.style.overflow = "hidden";
                 document.body.style.overflow = "hidden";
                 clearInterval(this.interval);
@@ -401,6 +410,7 @@
             }
 
             endGame() {
+                document.getElementById('title').textContent = TITLE;
                 document.documentElement.style.overflow = "visible";
                 document.body.style.overflow = "visible";
                 clearInterval(this.interval);
@@ -554,6 +564,7 @@
                 minimalDistance: minimalDistance
             };
         }
+        document.getElementById('title').textContent = TITLE;
         const game = new AntiBallsheetGame(
             document.querySelector('.game-container'),
             document.querySelector('.ball'),

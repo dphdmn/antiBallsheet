@@ -264,7 +264,7 @@
             </div> 
             <div class="setting">
                 <label for="minimal-distance">Minimal Distance: <span id="minimal-distance-value">33%</span></label>
-                <input type="range" id="minimal-distance" class="range-slider" min="0" max="50" value="33">
+                <input type="range" id="minimal-distance" class="range-slider" min="0" max="50" value="33" step="10">
                 <div class="range-labels">
                     <span>0%</span>
                     <span>10%</span>
@@ -304,14 +304,14 @@
 
 
     <script>
-        const VERSION = "v0.2.2 (beta)";
+        const VERSION = "v0.2.3 (beta)";
         const TITLE = `antiBallsheet game by dph, ${VERSION}`;
         const FIELD_SIZE_PX = 550;
         const DEFAULTS = {
             'balls-to-catch': 100,
             'ball-size': 15,
             'cursor-size': 16,
-            'minimal-distance': 33
+            'minimal-distance': 30
         };
         function setCursor(size) {
             const html = document.documentElement;

@@ -18,7 +18,6 @@
             color: white;
             align-items: flex-start;
             overflow: hidden;
-
         }
 
         .game-container {
@@ -50,20 +49,6 @@
             border-radius: 50%;
             background-color: transparent;
         }
-
-        #custom-cursor {
-            position: absolute;
-            left: 0;
-            top: 0;
-            will-change: transform;
-            pointer-events: none;
-            background-color: white;
-            border-radius: 50%;
-            pointer-events: none;
-            border: 2px solid black;
-            display: none;
-        }
-
         .info {
             position: absolute;
             top: 10px;
@@ -91,6 +76,7 @@
 
         .start-button-container {
             display: block;
+            cursor: auto;
             justify-content: center;
             align-items: center;
             position: relative;
@@ -104,8 +90,12 @@
             background-color: #111;
             border-radius: 50px;
             color: white;
-            font-size: 16px;
+            font-size: 14px;
             margin-bottom: 50px;
+            opacity: 0.3;
+        }
+        .start-button:hover{
+            opacity: 1;
         }
 
         .scoreValue {
@@ -138,6 +128,7 @@
             margin-bottom: 5px;
             font-size: 14px;
             text-align: center;
+            user-select: none;
         }
 
         .range-slider {
@@ -191,6 +182,7 @@
             justify-content: space-between;
             font-size: 12px;
             color: #888888;
+            user-select: none;
         }
 
         #cursor-size {
@@ -232,8 +224,14 @@
 <body>
 
     <div class="start-button-container">
-        <button disabled="true" class="start-button">Press R to Start or Reset the game<br>Press ESC to Stop and
-            configure the game<br>Press F11 to enter Full-Screen mode in your browser</button>
+        <button class="start-button">
+            Press <span style="color: cyan">R</span> or <span style="color: cyan">Spacebar</span> to Start or Reset the game.<br><br>
+            Press <span style="color: cyan">ESC</span> to Stop and configure the game.<br><br>
+            Press <span style="color: cyan">F11</span> to enter Full-Screen mode in your browser.<br><br>
+            The <span style="color: cyan">"Minimal Distance"</span> option defines the distance between consecutive balls compared to the game field size.<br><br>
+            <span style="color:#ff007b">Cursor size is purely visual; collision detection assumes ball size = cursor size.</span><br>(This is to avoid unexpected behavior due to non-scaling cursors)<br><br>
+            <span style="color:#eeff00">The game is in beta. Changes may occur. If you are loading from an earlier version,<br>be sure to "Set to Default" settings before altering anything or playing, as compatibility may vary.</span>
+        </button>
         <div class="win-message" id="win-message">
             <canvas id="reaction-time-chart"></canvas>
         </div>
@@ -263,17 +261,7 @@
                     <span>10%</span>
                     <span>5%</span>
                 </div>
-            </div>
-            <div class="setting">
-                <label for="cursor-size">Cursor size: <span id="cursor-size-value">10%</span></label>
-                <input type="range" id="cursor-size" class="range-slider" min="5" max="20" value="10">
-                <div class="range-labels">
-                    <span>20%</span>
-                    <span>15%</span>
-                    <span>10%</span>
-                    <span>5%</span>
-                </div>
-            </div>
+            </div> 
             <div class="setting">
                 <label for="minimal-distance">Minimal Distance: <span id="minimal-distance-value">33%</span></label>
                 <input type="range" id="minimal-distance" class="range-slider" min="0" max="50" value="33">
@@ -284,6 +272,21 @@
                     <span>30%</span>
                     <span>40%</span>
                     <span>50%</span>
+                </div>
+            </div>
+            <div class="setting">
+                <label for="cursor-size">Cursor size (visual only): <span id="cursor-size-value">10</span></label>
+                <input type="range" id="cursor-size" class="range-slider" min="0" max="64" value="8", step="2">
+                <div class="range-labels">
+                    <span>64</span>
+                    <span>56</span>
+                    <span>48</span>
+                    <span>40</span>
+                    <span>32</span>
+                    <span>24</span>
+                    <span>16</span>
+                    <span>8</span>
+                    <span>0</span>
                 </div>
             </div>
             <button id="set-to-default" class="default-button">Set to Default</button>
@@ -298,33 +301,49 @@
         <div id="hitbox"></div>
         <div id="ball"></div>
     </div>
-    <div id="custom-cursor"></div>
 
 
     <script>
-        const VERSION = "v0.1.6 (beta)";
+        const VERSION = "v0.2.0 (beta)";
         const TITLE = `antiBallsheet game by dph, ${VERSION}`;
         const FIELD_SIZE_PX = 550;
         const DEFAULTS = {
             'balls-to-catch': 100,
             'ball-size': 15,
-            'cursor-size': 5,
+            'cursor-size': 16,
             'minimal-distance': 33
         };
+        function setCursor(size) {
+            const html = document.documentElement;
 
+            if (size === 0) {
+                html.style.cursor = 'auto';
+            } else {
+                // Create a new Image object to preload the cursor
+                const cursorImg = new Image();
+                cursorImg.onload = function() {
+                    const cursorUrl = `url('${cursorImg.src}') ${size / 2} ${size / 2}, not-allowed`;
+                    html.style.cursor = cursorUrl;
+                };
+                cursorImg.onerror = function() {
+                    // Handle error if the image fails to load
+                    console.error("Failed to preload cursor image");
+                };
+                cursorImg.src = `cursors/circle_${size}.png`;
+            }
+        }
         class AntiBallsheetGame {
-            constructor(gameContainer, ball, hitbox, customCursor, timerDisplay, ballsLeftDisplay, winMessage, startButton, startButtonContainer) {
+            constructor(gameContainer, ball, hitbox, timerDisplay, ballsLeftDisplay, winMessage, startButton, startButtonContainer) {
                 this.fieldSize = FIELD_SIZE_PX;
                 this.gameContainer = gameContainer;
                 this.ball = ball;
                 this.hitbox = hitbox;
-                this.customCursor = customCursor;
                 this.timerDisplay = timerDisplay;
                 this.ballsLeftDisplay = ballsLeftDisplay;
                 this.winMessage = winMessage;
                 this.startButton = startButton;
                 this.startButtonContainer = startButtonContainer;
-
+                
                 this.audio = new Audio('boop.wav');
 
                 this.interval = null;
@@ -341,9 +360,7 @@
                 let currentSettings = getSettings();
                 this.ballToCatch = currentSettings.ballsToCatch;
                 this.ballSizeP = currentSettings.ballSize;
-                this.cursorSizeP = currentSettings.cursorSize;
                 this.ballSize = this.fieldSize * this.ballSizeP / 100;
-                this.cursorSize = this.fieldSize * this.cursorSizeP / 100;
                 this.distanceRatio = currentSettings.minimalDistance / 100;
 
                 this.minDistance = (this.fieldSize - this.ballSize) * this.distanceRatio;
@@ -351,11 +368,10 @@
 
             updateSizes() {
                 this.ball.style.width = this.ball.style.height = `${this.ballSize}px`;
-                this.customCursor.style.width = this.customCursor.style.height = `${this.cursorSize}px`;
                 this.gameContainer.style.width = this.gameContainer.style.height = `${this.fieldSize}px`;
 
                 this.ballRadius = this.ball.clientWidth / 2;
-                this.cursorRadius = this.customCursor.clientWidth / 2;
+                this.cursorRadius = this.ballRadius;
                 this.hitboxRadius = this.ballRadius + this.cursorRadius;
 
                 this.hitbox.style.width = this.hitbox.style.height = `${this.hitboxRadius * 2}px`;
@@ -400,7 +416,6 @@
                 document.documentElement.style.overflow = "hidden";
                 document.body.style.overflow = "hidden";
                 clearInterval(this.interval);
-                document.body.style.cursor = 'none';
                 this.reactionTimes = [];
                 this.ballsLeft = this.ballToCatch;
                 this.startTime = Date.now();
@@ -410,7 +425,6 @@
                 this.updateDisplay();
                 this.gameContainer.style.display = 'flex';
                 this.startButtonContainer.style.display = 'none';
-                this.customCursor.style.display = 'flex';
                 this.updateSizes();
                 this.moveBall();
             }
@@ -428,13 +442,6 @@
             updateDisplay() {
                 this.ballsLeftDisplay.textContent = `Balls Left: ${this.ballsLeft}`;
             }
-
-            handleMouseMove(e) {
-                const x = e.clientX - this.cursorRadius;
-                const y = e.clientY - this.cursorRadius;
-                this.customCursor.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-            }
-
             handleHit() {
                 if (this.ballsLeft > 0) {
                     const hitTime = Date.now();
@@ -451,24 +458,27 @@
                     }
                 }
             }
-
+            launchGame(){
+                this.winMessage.style.display = 'none';
+                this.startButtonContainer.style.display = 'block';
+                this.startGame();
+            }
+            abortGame(){
+                this.endGame();
+                this.winMessage.style.display = 'none';
+                this.timerDisplay.textContent = "";
+                this.ballsLeftDisplay.textContent = "";
+            }
             handleRestart(e) {
-                if (e.key === 'r' || e.key === 'R' || e.key === 'К' || e.key === 'к') {
-                    this.winMessage.style.display = 'none';
-                    this.startButtonContainer.style.display = 'block';
-                    this.startGame();
+                if (e.key === 'r' || e.key === 'R' || e.key === 'К' || e.key === 'к' || e.key === " ") {
+                    this.launchGame();
                 }
                 if (e.key === "Escape") {
-                    this.endGame();
-                    this.winMessage.style.display = 'none';
-                    this.timerDisplay.textContent = "";
-                    this.ballsLeftDisplay.textContent = "";
+                    this.abortGame();
                 }
             }
 
             showResults() {
-                this.customCursor.style.display = 'none';
-                document.body.style.cursor = 'default';
                 const totalTime = (Date.now() - this.startTime) / 1000;
                 const averageTime = (this.reactionTimes.reduce((a, b) => a + b, 0) / this.reactionTimes.length).toFixed(3);
                 const minTime = Math.min(...this.reactionTimes);
@@ -479,7 +489,6 @@
                     You hit all <span class="scoreValue">${this.ballToCatch}</span> balls in <span class="scoreValue">${totalTime.toFixed(3)}s</span>!<br>
                     Average reaction time: <span class="scoreValue" title="min: ${minTime} / max: ${maxTime}">${averageTime}s</span></p>
 					Balls size: <span class="scoreValue">${this.ballSizeP}%</span><br>
-					Cursor size: <span class="scoreValue">${this.cursorSizeP}%</span><br>
 					Minimal distance: <span class="scoreValue">${this.distanceRatio * 100}%</span>
 					
                     </p>
@@ -520,10 +529,9 @@
             }
 
             addEventListeners() {
-                document.addEventListener('mousemove', this.handleMouseMove.bind(this));
                 this.hitbox.addEventListener('mouseover', this.handleHit.bind(this));
                 document.addEventListener('keydown', this.handleRestart.bind(this));
-                this.startButton.addEventListener('click', this.startGame.bind(this));
+                this.startButton.addEventListener('click', this.launchGame.bind(this));
             }
         }
         document.getElementById('balls-to-catch').addEventListener('input', function () {
@@ -535,6 +543,8 @@
         });
 
         document.getElementById('cursor-size').addEventListener('input', function () {
+            var cursorSize = parseInt(document.getElementById('cursor-size').value);
+            setCursor(cursorSize);
             updateLabel('cursor-size');
         });
 
@@ -566,7 +576,7 @@
                     cursorSize: 'cursor-size',
                     minimalDistance: 'minimal-distance'
                 };
-
+                setCursor(settings.cursorSize);
                 for (var setting in settings) {
                     var sliderId = settingsMap[setting];
                     var value = settings[setting];
@@ -585,13 +595,14 @@
             var slider = document.getElementById(setting);
             var valueLabel = document.getElementById(setting + '-value');
             var value = slider.value;
-            valueLabel.textContent = value + (setting.includes('size') || setting === 'minimal-distance' ? '%' : '');
+            valueLabel.textContent = value + (setting === 'ball-size' || setting === 'minimal-distance' ? '%' : '');
         }
 
         function getSettings() {
             var ballsToCatch = parseInt(document.getElementById('balls-to-catch').value);
             var ballSize = parseInt(document.getElementById('ball-size').value);
             var cursorSize = parseInt(document.getElementById('cursor-size').value);
+            setCursor(cursorSize);
             var minimalDistance = parseInt(document.getElementById('minimal-distance').value);
 
             var settings = {
@@ -610,7 +621,6 @@
             document.querySelector('.game-container'),
             document.getElementById('ball'),
             document.getElementById('hitbox'),
-            document.getElementById('custom-cursor'),
             document.getElementById('timer'),
             document.getElementById('balls-left'),
             document.getElementById('win-message'),

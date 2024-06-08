@@ -20,7 +20,6 @@
             overflow: hidden;
 
         }
-
         .game-container {
             position: fixed;
             top: 5%;
@@ -49,7 +48,6 @@
             background-color: white;
             border-radius: 50%;
             pointer-events: none;
-            /* Make the custom cursor non-interactive */
             border: 2px solid black;
             display: none;
         }
@@ -201,8 +199,6 @@
 		#balls-left {
 			min-width: 150px;
 		}
-
-        /* Add this CSS to style the default button */
         .default-button {
             background-color: pink;
             color: black;
@@ -296,7 +292,7 @@
 
 
     <script>
-        const VERSION = "v0.1.1 (beta)";
+        const VERSION = "v0.1.2 (beta)";
         const TITLE = `antiBallsheet game by dph, ${VERSION}`;
         const FIELD_SIZE_PX = 800;
         const DEFAULTS = {
@@ -499,6 +495,7 @@
                     },
                     options: {
                         responsive: true,
+                        devicePixelRatio: 4,
                         scales: {
                             y: {
                                 beginAtZero: true

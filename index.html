@@ -304,7 +304,7 @@
 
 
     <script>
-        const VERSION = "v0.2.1 (beta)";
+        const VERSION = "v0.2.2 (beta)";
         const TITLE = `antiBallsheet game by dph, ${VERSION}`;
         const FIELD_SIZE_PX = 550;
         const DEFAULTS = {
@@ -345,7 +345,7 @@
                 this.startButtonContainer = startButtonContainer;
                 
                 this.audio = new Audio('boop.wav');
-
+                this.randomPositions = [];
                 this.interval = null;
                 this.startTime = null;
                 this.lastHitTime = null;
@@ -355,15 +355,22 @@
                 this.addEventListeners();
 
             }
-
+            generateRandomPositions() {
+                for (let i = 0; i < this.ballToCatch; i++) {
+                    this.randomPositions.push(this.getRandomPosition());
+                }
+                this.currentPositionIndex = 0;
+            }
             configure() {
                 let currentSettings = getSettings();
                 this.ballToCatch = currentSettings.ballsToCatch;
+                
                 this.ballSizeP = currentSettings.ballSize;
                 this.ballSize = this.fieldSize * this.ballSizeP / 100;
                 this.distanceRatio = currentSettings.minimalDistance / 100;
 
                 this.minDistance = (this.fieldSize - this.ballSize) * this.distanceRatio;
+                
             }
 
             updateSizes() {
@@ -399,7 +406,7 @@
                 return Math.sqrt(dx * dx + dy * dy);
             }
             moveBall() {
-                const { x, y } = this.getRandomPosition();
+                const { x, y } = this.randomPositions[this.currentPositionIndex++];
                 this.hitbox.style.transform = `translate3d(${x - this.cursorRadius}px, ${y - this.cursorRadius}px, 0)`;
                 this.ball.style.transform = `translate3d(${x}px, ${y}px, 0)`;
                 this.lastHitTime = Date.now();
@@ -417,16 +424,18 @@
                 document.body.style.overflow = "hidden";
                 clearInterval(this.interval);
                 this.reactionTimes = [];
-                this.ballsLeft = this.ballToCatch;
-                this.startTime = Date.now();
-                this.lastHitTime = Date.now();
-                this.timerDisplay.textContent = `Time: 0.00s`;
-                this.interval = setInterval(this.updateTimer.bind(this), 10);
+                this.randomPositions = [];
+                this.ballsLeft = this.ballToCatch;                
+                this.timerDisplay.textContent = `Time: 0.00s`;                
                 this.updateDisplay();
                 this.gameContainer.style.display = 'flex';
                 this.startButtonContainer.style.display = 'none';
                 this.updateSizes();
+                this.generateRandomPositions();
                 this.moveBall();
+                this.startTime = Date.now();
+                this.lastHitTime = Date.now();
+                this.interval = setInterval(this.updateTimer.bind(this), 10);
             }
 
             endGame() {

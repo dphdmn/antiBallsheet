@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="icon.png">
+    <link rel="icon" href="resources/icon.png">
     <title>antiBallsheet</title>
     <style>
         body,
@@ -329,7 +329,7 @@
                     // Handle error if the image fails to load
                     console.error("Failed to preload cursor image");
                 };
-                cursorImg.src = `cursors/circle_${size}.png`;
+                cursorImg.src = `resources/cursors/circle_${size}.png`;
             }
         }
         class AntiBallsheetGame {
@@ -344,7 +344,7 @@
                 this.startButton = startButton;
                 this.startButtonContainer = startButtonContainer;
                 
-                this.audio = new Audio('boop.wav');
+                this.audio = new Audio('resources/boop.wav');
                 this.randomPositions = [];
                 this.interval = null;
                 this.startTime = null;

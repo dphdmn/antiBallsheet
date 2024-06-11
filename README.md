@@ -10,5 +10,4 @@ antiBallsheet is an engaging reaction game built as an improvement over an old p
 - **Improved Performance**: Enjoy smoother gameplay as the game no longer relies on p5.js (or canvas at all).
 - **Clean Interface**: Experience a user-friendly interface free from complicated stats, unnecessary controls, and flashing numbers during gameplay.
 - **Interactive Graphs**: Utilize much better graph powered by the graph.js library.
-
-*Coming Soon*: Additional styling customization options may be added later.
+- **Customization**: You can change colors as much as you like! (Custom cursor colors not yet implemented, but you can disable it, by setting size to 0, then it would use your default windows cursor)

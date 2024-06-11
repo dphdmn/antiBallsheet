@@ -513,6 +513,7 @@
             }
             configure() {
                 let currentSettings = getSettings();
+                currentSettings.minimalDistance = DEFAULTS['minimal-distance']; //temporarly hard-locked
                 this.ballToCatch = currentSettings.ballsToCatch;
 
                 this.ballSizeP = currentSettings.ballSize;

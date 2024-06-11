@@ -26,7 +26,6 @@
             background-color: #000;
             border: 2px solid rgba(0, 255, 255, 0.5);
             display: none;
-            border-radius: 5%;
             justify-content: center;
             align-items: center;
         }
@@ -62,7 +61,6 @@
         }
 
         .info div {
-            color: cyan;
             font-size: 24px;
         }
 
@@ -304,7 +302,7 @@
 
 
 
-    <script>const VERSION = "v0.3.3 (beta)";</script>
+    <script>const VERSION = "v0.4.0 (beta)";</script>
 
 
 
@@ -322,50 +320,6 @@
                 may vary.</span>
         </button>
         <div class="win-message" id="win-message"></div>
-        <div class="settings-container">
-            <div class="setting">
-                <label for="balls-to-catch">Balls to catch: <span id="balls-to-catch-value">350</span></label>
-                <input type="range" id="balls-to-catch" class="range-slider" min="50" max="500" value="350" step="50">
-                <div class="range-labels">
-                    <span>50</span>
-                    <span>100</span>
-                    <span>150</span>
-                    <span>200</span>
-                    <span>250</span>
-                    <span>300</span>
-                    <span>350</span>
-                    <span>400</span>
-                    <span>450</span>
-                    <span>500</span>
-                </div>
-            </div>
-            <div class="setting">
-                <label for="ball-size">Ball size: <span id="ball-size-value">10%</span></label>
-                <input type="range" id="ball-size" class="range-slider" min="5" max="20" value="10">
-                <div class="range-labels">
-                    <span>20%</span>
-                    <span>15%</span>
-                    <span>10%</span>
-                    <span>5%</span>
-                </div>
-            </div>
-            <div class="setting">
-                <label for="cursor-size">Cursor size (visual only): <span id="cursor-size-value">10</span></label>
-                <input type="range" id="cursor-size" class="range-slider" min="0" max="64" value="8" , step="2">
-                <div class="range-labels">
-                    <span>64</span>
-                    <span>56</span>
-                    <span>48</span>
-                    <span>40</span>
-                    <span>32</span>
-                    <span>24</span>
-                    <span>16</span>
-                    <span>8</span>
-                    <span>0</span>
-                </div>
-            </div>
-            <button id="set-to-default" class="default-button">Set to Default</button>
-        </div>
     </div>
     <div class="info">
         <div id="timer"></div>
@@ -393,10 +347,134 @@
             'cursor-size': 16,
             'minimal-distance': 40
         };
+        const DEFAULT_COLORS = {
+            htmlBackground: '#111111',
+            bodyBackground: '#111111',
+            gameContainerBackground: '#000000',
+            gameContainerBorder: '#00FFFF',
+            ballBackground: '#fa96c8',
+            title: '#00FFFF'
+        };
+        const colorPickers = [
+            { styleName: 'html', cssProperty: 'backgroundColor', captionText: 'Main background', initialColor: DEFAULT_COLORS.htmlBackground },
+            { styleName: 'body', cssProperty: 'backgroundColor', captionText: 'Settings screen background', initialColor: DEFAULT_COLORS.bodyBackground },
+            { styleName: '.game-container', cssProperty: 'backgroundColor', captionText: 'Gamefield background', initialColor: DEFAULT_COLORS.gameContainerBackground },
+            { styleName: '.game-container', cssProperty: 'borderColor', captionText: 'Gamefield border', initialColor: DEFAULT_COLORS.gameContainerBorder },
+            { styleName: '#ball', cssProperty: 'backgroundColor', captionText: 'Target color', initialColor: DEFAULT_COLORS.ballBackground },
+            { styleName: '.info', cssProperty: 'color', captionText: 'Info text color', initialColor: DEFAULT_COLORS.title }
+        ];
+        function createColorPicker(styleName, cssProperty, captionText, initialColor) {
+            
+            const container = document.createElement('div');
+            container.style.marginBottom = '5px';
+            const caption = document.createElement('span');
+            caption.textContent = captionText;
+            caption.style.marginRight = '10px';
+            const colorPicker = document.createElement('input');
+            colorPicker.type = 'color';
+            colorPicker.id = `color-picker${captionText}`;
+            const storedColor = localStorage.getItem(colorPicker.id);
+            colorPicker.value = storedColor ? storedColor : initialColor;
+            const elements = document.querySelectorAll(styleName);
+            elements.forEach(element => {
+                element.style[cssProperty] = colorPicker.value;
+            });
+            colorPicker.addEventListener('input', function () {
+                const elements = document.querySelectorAll(styleName);
+                elements.forEach(element => {
+                    element.style[cssProperty] = colorPicker.value;
+                });
+            });
+            colorPicker.addEventListener('change', function () {
+                localStorage.setItem(colorPicker.id, colorPicker.value);
+            });
+            container.appendChild(caption);
+            container.appendChild(colorPicker);
+            return container;
+        }
+        function rgbToHex(rgb) {
+            const result = rgb.match(/\d+/g).map(Number);
+            return "#" + ((1 << 24) + (result[0] << 16) + (result[1] << 8) + result[2]).toString(16).slice(1).toUpperCase();
+        }
 
+        function createCustomizationContainer() {
+            const customizationContainer = document.createElement('div');
+            customizationContainer.className = 'settings-container';
 
+            colorPickers.forEach(picker => {
+                customizationContainer.appendChild(createColorPicker(picker.styleName, picker.cssProperty, picker.captionText, picker.initialColor));
+            });
+            const resetButton = document.createElement('button');
+            resetButton.textContent = 'Reset to Default Colors';
+            resetButton.addEventListener('click', () => {
+                setColorsToDefault();
+            });
+            resetButton.classList.add("default-button");
+            customizationContainer.appendChild(resetButton);
 
+            return customizationContainer;
+        }
+        function setColorsToDefault() {
 
+            colorPickers.forEach(picker => {
+                const elements = document.querySelectorAll(picker.styleName);
+                elements.forEach(element => {
+                    element.style[picker.cssProperty] = picker.initialColor;
+                });
+                const colorPicker = document.getElementById(`color-picker${picker.captionText}`);
+                if (colorPicker) {
+                    colorPicker.value = picker.initialColor;
+                    localStorage.setItem(colorPicker.id, colorPicker.value);
+                }
+            });
+        }
+        function createSettingsContainer() {
+            let settingsContainer = document.createElement('div');
+            settingsContainer.className = 'settings-container';
+
+            const settings = [
+                { label: 'Balls to catch: ', id: 'balls-to-catch', valueId: 'balls-to-catch-value', min: 50, max: 500, value: 350, step: 50, labels: [50, 100, 150, 200, 250, 300, 350, 400, 450, 500] },
+                { label: 'Ball size: ', id: 'ball-size', valueId: 'ball-size-value', min: 5, max: 20, value: 10, labels: ['20%', '15%', '10%', '5%'] },
+                { label: 'Cursor size (visual only): ', id: 'cursor-size', valueId: 'cursor-size-value', min: 0, max: 64, value: 8, step: 2, labels: [64, 56, 48, 40, 32, 24, 16, 8, 0] }
+            ];
+
+            settings.forEach(setting => {
+                let settingElement = document.createElement('div');
+                settingElement.className = 'setting';
+
+                settingElement.innerHTML = `
+            <label for="${setting.id}">${setting.label}<span id="${setting.valueId}">${setting.value}${setting.step ? '' : '%'}</span></label>
+            <input type="range" id="${setting.id}" class="range-slider" min="${setting.min}" max="${setting.max}" value="${setting.value}"${setting.step ? ` step="${setting.step}"` : ''}>
+            <div class="range-labels">${setting.labels.map(label => `<span>${label}</span>`).join('')}</div>
+        `;
+
+                settingsContainer.appendChild(settingElement);
+            });
+
+            let setToDefaultButton = document.createElement('button');
+            setToDefaultButton.id = 'set-to-default';
+            setToDefaultButton.className = 'default-button';
+            setToDefaultButton.textContent = 'Set to Default';
+            settingsContainer.appendChild(setToDefaultButton);
+
+            return settingsContainer;
+        }
+        function createSettingsTabs() {
+            const tabContainerSettings = document.createElement('div');
+            tabContainerSettings.className = 'tab-container';
+            tabContainerSettings.style.textAlign = "center";
+            const settingsButton = createTabButton('Settings', 'mysettings', tabContainerSettings);
+            const customizationButton = createTabButton('Customization', 'mycustomization', tabContainerSettings);
+            tabContainerSettings.appendChild(settingsButton);
+            tabContainerSettings.appendChild(customizationButton);
+            settingsContainer = createSettingsContainer();
+            tabContainerSettings.appendChild(createTabContent('mysettings', settingsContainer));
+            customizationContainer = createCustomizationContainer();
+            tabContainerSettings.appendChild(createTabContent('mycustomization', customizationContainer));
+            document.querySelector('.start-button-container').appendChild(tabContainerSettings);
+            settingsButton.click();
+        }
+        createSettingsTabs();
         function setCursor(size) {
             const html = document.documentElement;
 
@@ -446,19 +524,16 @@
             const averageSpan = averageRow.querySelector('.scoreValue');
             averageSpan.title = `min: ${minTime.toFixed(3)} / max: ${maxTime.toFixed(3)}`;
             table.appendChild(averageRow);
-
-
-
             return table;
         }
 
-        function createTabButton(text, targetId) {
+        function createTabButton(text, targetId, tabContainer) {
             const button = document.createElement('button');
             button.className = 'tab-button';
             button.textContent = text;
             button.onclick = () => {
-                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-                document.getElementById(targetId).classList.add('active');
+                tabContainer.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+                tabContainer.querySelector(`#${targetId}`).classList.add('active');
             };
             return button;
         }
@@ -485,15 +560,16 @@
             const reactionList = document.createElement('p');
             reactionList.id = 'reaction-times-list';
             reactionList.textContent = reactionTimesList;
-
-            tabContainer.appendChild(createTabButton('Chart', 'chart-tab'));
-            tabContainer.appendChild(createTabButton('List', 'list-tab'));
+            const chartButton = createTabButton('Chart', 'chart-tab', tabContainer);
+            const listButton = createTabButton('List', 'list-tab', tabContainer);
+            tabContainer.appendChild(chartButton);
+            tabContainer.appendChild(listButton);
             tabContainer.appendChild(createTabContent('chart-tab', chartCanvas));
             tabContainer.appendChild(createTabContent('list-tab', reactionList));
 
             winMessage.appendChild(tabContainer);
 
-            document.querySelector('.tab-button').click(); // Show the first tab by default
+            chartButton.click(); // Show the first tab by default
         }
 
         class AntiBallsheetGame {

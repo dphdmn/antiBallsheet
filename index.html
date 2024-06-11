@@ -301,6 +301,14 @@
 
 <body>
 
+
+
+
+    <script>const VERSION = "v0.3.3 (beta)";</script>
+
+
+
+
     <div class="start-button-container">
         <button class="start-button">
             Press <span style="color: cyan">R</span> or <span style="color: cyan">Spacebar</span> to Start or Reset the
@@ -369,9 +377,14 @@
         <div id="ball"></div>
     </div>
 
+    <script type="text/javascript" src="https://unpkg.com/random-js@2.0.0/dist/random-js.min.js"></script>
+    <script>
+        // Create a Mersenne Twister engine and auto-seed it
+        var eng = Random.MersenneTwister19937.autoSeed();
+        var myrandom = new Random.Random(eng);
+    </script>
 
     <script>
-        const VERSION = "v0.3.2 (beta)";
         const TITLE = `antiBallsheet game by dph, ${VERSION}`;
         const FIELD_SIZE_PX = 600;
         const DEFAULTS = {
@@ -380,6 +393,10 @@
             'cursor-size': 16,
             'minimal-distance': 40
         };
+
+
+
+
         function setCursor(size) {
             const html = document.documentElement;
 
@@ -543,8 +560,8 @@
                     let cx = maxW / 2, cy = maxH / 2;
                     let a = maxW / 2;
                     let b = maxH / 2;
-                    let t = Math.random() * 2 * Math.PI;
-                    let r = Math.sqrt(Math.random());
+                    let t = myrandom.real(0, 2 * Math.PI);
+                    let r = Math.sqrt(myrandom.real(0, 1));
                     x = cx + a * r * Math.cos(t);
                     y = cy + b * r * Math.sin(t);
                 } while (this.distanceBetweenPoints(x, y, this.latestX, this.latestY) < this.minDistance);

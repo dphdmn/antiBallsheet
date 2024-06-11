@@ -49,6 +49,7 @@
             border-radius: 50%;
             background-color: transparent;
         }
+
         .info {
             position: absolute;
             top: 10px;
@@ -67,7 +68,7 @@
 
         .win-message {
             display: none;
-            font-size: 25px;
+            font-size: 20px;
             text-align: center;
             min-width: 800px;
             max-width: 800px;
@@ -91,10 +92,11 @@
             border-radius: 50px;
             color: white;
             font-size: 14px;
-            margin-bottom: 50px;
+            margin-bottom: 10px;
             opacity: 0.3;
         }
-        .start-button:hover{
+
+        .start-button:hover {
             opacity: 1;
         }
 
@@ -111,11 +113,24 @@
             white-space: normal;
         }
 
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        #reaction-times-list::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Hide scrollbar for IE, Edge and Firefox */
+        #reaction-times-list {
+            -ms-overflow-style: none;
+            /* IE and Edge */
+            scrollbar-width: none;
+            /* Firefox */
+        }
+
         .settings-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-top: 20px;
+            margin-top: 5px;
         }
 
         .setting {
@@ -217,6 +232,68 @@
         .default-button:hover {
             background-color: cyan;
         }
+
+        .tab-container {
+            margin-top: 5px;
+            background-color: #1e1e1e;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .tab-button {
+            padding: 12px 20px;
+            cursor: pointer;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            margin-right: 10px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .tab-button:hover,
+        .tab-button:focus {
+            background-color: #555;
+            color: #ddd;
+        }
+
+        .tab-button.active {
+            background-color: #555;
+            color: #ddd;
+        }
+
+        .tab-content {
+            display: none;
+            margin-top: 10px;
+            padding: 15px;
+            background-color: #1a1a1a;
+            color: #ccc;
+            border-radius: 8px;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .statsTable {
+            margin: 0 auto;
+            border-collapse: collapse;
+            text-align: center;
+        }
+
+        .statsTable td {
+            border: 2px solid pink;
+            padding: 5px 30px;
+        }
+
+        .statsTable .scoreValue {
+            font-weight: bold;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -225,16 +302,17 @@
 
     <div class="start-button-container">
         <button class="start-button">
-            Press <span style="color: cyan">R</span> or <span style="color: cyan">Spacebar</span> to Start or Reset the game.<br><br>
+            Press <span style="color: cyan">R</span> or <span style="color: cyan">Spacebar</span> to Start or Reset the
+            game.<br><br>
             Press <span style="color: cyan">ESC</span> to Stop and configure the game.<br><br>
             Press <span style="color: cyan">F11</span> to enter Full-Screen mode in your browser.<br><br>
-            The <span style="color: cyan">"Minimal Distance"</span> option defines the distance between consecutive balls compared to the game field size.<br><br>
-            <span style="color:#ff007b">Cursor size is purely visual; collision detection assumes ball size = cursor size.</span><br>(This is to avoid unexpected behavior due to non-scaling cursors)<br><br>
-            <span style="color:#eeff00">The game is in beta. Changes may occur. If you are loading from an earlier version,<br>be sure to "Set to Default" settings before altering anything or playing, as compatibility may vary.</span>
+            <span style="color:#ff007b">Cursor size is purely visual; collision detection assumes ball size = cursor
+                size.</span><br>(This is to avoid unexpected behavior due to non-scaling cursors)<br><br>
+            <span style="color:#eeff00">The game is in beta. Changes may occur. If you are loading from an earlier
+                version,<br>be sure to "Set to Default" settings before altering anything or playing, as compatibility
+                may vary.</span>
         </button>
-        <div class="win-message" id="win-message">
-            <canvas id="reaction-time-chart"></canvas>
-        </div>
+        <div class="win-message" id="win-message"></div>
         <div class="settings-container">
             <div class="setting">
                 <label for="balls-to-catch">Balls to catch: <span id="balls-to-catch-value">350</span></label>
@@ -261,22 +339,10 @@
                     <span>10%</span>
                     <span>5%</span>
                 </div>
-            </div> 
-            <div class="setting">
-                <label for="minimal-distance">Minimal Distance: <span id="minimal-distance-value">33%</span></label>
-                <input type="range" id="minimal-distance" class="range-slider" min="0" max="50" value="33" step="10">
-                <div class="range-labels">
-                    <span>0%</span>
-                    <span>10%</span>
-                    <span>20%</span>
-                    <span>30%</span>
-                    <span>40%</span>
-                    <span>50%</span>
-                </div>
             </div>
             <div class="setting">
                 <label for="cursor-size">Cursor size (visual only): <span id="cursor-size-value">10</span></label>
-                <input type="range" id="cursor-size" class="range-slider" min="0" max="64" value="8", step="2">
+                <input type="range" id="cursor-size" class="range-slider" min="0" max="64" value="8" , step="2">
                 <div class="range-labels">
                     <span>64</span>
                     <span>56</span>
@@ -304,14 +370,14 @@
 
 
     <script>
-        const VERSION = "v0.2.6 (beta)";
+        const VERSION = "v0.3.0 (beta)";
         const TITLE = `antiBallsheet game by dph, ${VERSION}`;
-        const FIELD_SIZE_PX = 550;
+        const FIELD_SIZE_PX = 600;
         const DEFAULTS = {
             'balls-to-catch': 100,
             'ball-size': 10,
             'cursor-size': 16,
-            'minimal-distance': 50
+            'minimal-distance': 40
         };
         function setCursor(size) {
             const html = document.documentElement;
@@ -321,17 +387,97 @@
             } else {
                 // Create a new Image object to preload the cursor
                 const cursorImg = new Image();
-                cursorImg.onload = function() {
+                cursorImg.onload = function () {
                     const cursorUrl = `url('${cursorImg.src}') ${size / 2} ${size / 2}, not-allowed`;
                     html.style.cursor = cursorUrl;
                 };
-                cursorImg.onerror = function() {
+                cursorImg.onerror = function () {
                     // Handle error if the image fails to load
                     console.error("Failed to preload cursor image");
                 };
                 cursorImg.src = `resources/cursors/circle_${size}.png`;
             }
         }
+
+        function createScoreValueElement(value) {
+            const span = document.createElement('span');
+            span.className = 'scoreValue';
+            span.textContent = value;
+            return span;
+        }
+
+        function createTableRowElement(label, value) {
+            const tr = document.createElement('tr');
+            const tdLabel = document.createElement('td');
+            tdLabel.textContent = label;
+            const tdValue = document.createElement('td');
+            tdValue.appendChild(createScoreValueElement(value));
+            tr.appendChild(tdLabel);
+            tr.appendChild(tdValue);
+            return tr;
+        }
+
+        function createStatsElement(ballToCatch, totalTime, averageTime, minTime, maxTime, ballSizeP) {
+            const table = document.createElement('table');
+            table.className = 'statsTable';
+            table.appendChild(createTableRowElement('Balls size', ballSizeP + '%'));
+            table.appendChild(createTableRowElement('Balls', ballToCatch));
+            table.appendChild(createTableRowElement('Time', totalTime.toFixed(3) + 's'));
+
+            const averageRow = createTableRowElement('Reaction', averageTime.toFixed(3) + 's');
+            const averageSpan = averageRow.querySelector('.scoreValue');
+            averageSpan.title = `min: ${minTime.toFixed(3)} / max: ${maxTime.toFixed(3)}`;
+            table.appendChild(averageRow);
+
+
+
+            return table;
+        }
+
+        function createTabButton(text, targetId) {
+            const button = document.createElement('button');
+            button.className = 'tab-button';
+            button.textContent = text;
+            button.onclick = () => {
+                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+                document.getElementById(targetId).classList.add('active');
+            };
+            return button;
+        }
+
+        function createTabContent(id, content) {
+            const div = document.createElement('div');
+            div.id = id;
+            div.className = 'tab-content';
+            div.appendChild(content);
+            return div;
+        }
+
+        function createWinMessage(ballToCatch, totalTime, minTime, maxTime, averageTime, ballSizeP, reactionTimesList) {
+            const winMessage = document.getElementById('win-message');
+            winMessage.innerHTML = '';
+            winMessage.appendChild(createStatsElement(ballToCatch, totalTime, averageTime, minTime, maxTime, ballSizeP));
+
+            const tabContainer = document.createElement('div');
+            tabContainer.className = 'tab-container';
+
+            const chartCanvas = document.createElement('canvas');
+            chartCanvas.id = 'reaction-time-chart';
+
+            const reactionList = document.createElement('p');
+            reactionList.id = 'reaction-times-list';
+            reactionList.textContent = reactionTimesList;
+
+            tabContainer.appendChild(createTabButton('Chart', 'chart-tab'));
+            tabContainer.appendChild(createTabButton('List', 'list-tab'));
+            tabContainer.appendChild(createTabContent('chart-tab', chartCanvas));
+            tabContainer.appendChild(createTabContent('list-tab', reactionList));
+
+            winMessage.appendChild(tabContainer);
+
+            document.querySelector('.tab-button').click(); // Show the first tab by default
+        }
+
         class AntiBallsheetGame {
             constructor(gameContainer, ball, hitbox, timerDisplay, ballsLeftDisplay, winMessage, startButton, startButtonContainer) {
                 this.fieldSize = FIELD_SIZE_PX;
@@ -343,7 +489,7 @@
                 this.winMessage = winMessage;
                 this.startButton = startButton;
                 this.startButtonContainer = startButtonContainer;
-                
+
                 this.audio = new Audio('resources/boop.wav');
                 this.randomPositions = [];
                 this.interval = null;
@@ -368,13 +514,13 @@
             configure() {
                 let currentSettings = getSettings();
                 this.ballToCatch = currentSettings.ballsToCatch;
-                
+
                 this.ballSizeP = currentSettings.ballSize;
                 this.ballSize = this.fieldSize * this.ballSizeP / 100;
                 this.distanceRatio = currentSettings.minimalDistance / 100;
 
                 this.minDistance = (this.fieldSize - this.ballSize) * this.distanceRatio;
-                
+
             }
 
             updateSizes() {
@@ -429,8 +575,8 @@
                 clearInterval(this.interval);
                 this.reactionTimes = [];
                 this.randomPositions = [];
-                this.ballsLeft = this.ballToCatch;                
-                this.timerDisplay.textContent = `Time: 0.00s`;                
+                this.ballsLeft = this.ballToCatch;
+                this.timerDisplay.textContent = `Time: 0.00s`;
                 this.updateDisplay();
                 this.gameContainer.style.display = 'flex';
                 this.startButtonContainer.style.display = 'none';
@@ -470,12 +616,12 @@
                     this.endGame();
                 }
             }
-            launchGame(){
+            launchGame() {
                 this.winMessage.style.display = 'none';
                 this.startButtonContainer.style.display = 'block';
                 this.startGame();
             }
-            abortGame(){
+            abortGame() {
                 this.endGame();
                 this.winMessage.style.display = 'none';
                 this.timerDisplay.textContent = "";
@@ -492,28 +638,23 @@
 
             showResults() {
                 const totalTime = (Date.now() - this.startTime) / 1000;
-                const averageTime = (this.reactionTimes.reduce((a, b) => a + b, 0) / this.reactionTimes.length).toFixed(3);
+                const averageTime = this.reactionTimes.reduce((a, b) => a + b, 0) / this.reactionTimes.length;
                 const minTime = Math.min(...this.reactionTimes);
                 const maxTime = Math.max(...this.reactionTimes);
                 const reactionTimesList = this.reactionTimes.join(', ');
-                this.winMessage.innerHTML = `
-                    <p>Congratulations!<br>
-                    You hit all <span class="scoreValue">${this.ballToCatch}</span> balls in <span class="scoreValue">${totalTime.toFixed(3)}s</span>!<br>
-                    Average reaction time: <span class="scoreValue" title="min: ${minTime} / max: ${maxTime}">${averageTime}s</span></p>
-					Balls size: <span class="scoreValue">${this.ballSizeP}%</span><br>
-					Minimal distance: <span class="scoreValue">${this.distanceRatio * 100}%</span>
-					
-                    </p>
-                    <canvas id="reaction-time-chart"></canvas>
-					<p id="reaction-times-list">${reactionTimesList}</p>
-                `;
+                createWinMessage(this.ballToCatch, totalTime, minTime, maxTime, averageTime, this.ballSizeP, reactionTimesList);
                 this.winMessage.style.display = 'block';
                 this.displayChart();
             }
 
             displayChart() {
                 const ctx = document.getElementById('reaction-time-chart').getContext('2d');
-                new Chart(ctx, {
+
+                if (this.chartInstance) {
+                    this.chartInstance.destroy();
+                }
+
+                this.chartInstance = new Chart(ctx, {
                     type: 'line',
                     data: {
                         labels: this.reactionTimes.map((_, index) => index + 1),
@@ -559,10 +700,6 @@
             setCursor(cursorSize);
             updateLabel('cursor-size');
         });
-
-        document.getElementById('minimal-distance').addEventListener('input', function () {
-            updateLabel('minimal-distance');
-        });
         document.getElementById('set-to-default').addEventListener('click', function () {
             setToDefault();
         });
@@ -571,8 +708,11 @@
             for (var setting in DEFAULTS) {
                 var slider = document.getElementById(setting);
                 var value = DEFAULTS[setting];
-                slider.value = value;
-                updateLabel(setting);
+                if (slider !== null) {
+                    slider.value = value;
+                    updateLabel(setting);
+                }
+
             }
             setCursor(DEFAULTS["cursor-size"]);
         }
@@ -616,7 +756,7 @@
             var ballSize = parseInt(document.getElementById('ball-size').value);
             var cursorSize = parseInt(document.getElementById('cursor-size').value);
             setCursor(cursorSize);
-            var minimalDistance = parseInt(document.getElementById('minimal-distance').value);
+            var minimalDistance = DEFAULTS['minimal-distance'];
 
             var settings = {
                 ballsToCatch: ballsToCatch,

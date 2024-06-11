@@ -21,8 +21,12 @@
         }
 
         .game-container {
-            position: fixed;
-            top: 15%;
+            top: 10px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            -ms-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
             background-color: #000;
             border: 2px solid rgba(0, 255, 255, 0.5);
             display: none;
@@ -74,6 +78,7 @@
         }
 
         .start-button-container {
+            
             display: block;
             cursor: auto;
             justify-content: center;
@@ -302,7 +307,7 @@
 
 
 
-    <script>const VERSION = "v0.4.1 (beta)";</script>
+    <script>const VERSION = "v0.4.2 (beta)";</script>
 
 
 

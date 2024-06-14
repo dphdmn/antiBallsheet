@@ -31,7 +31,6 @@ function rgbToHex(rgb) {
     const result = rgb.match(/\d+/g).map(Number);
     return "#" + ((1 << 24) + (result[0] << 16) + (result[1] << 8) + result[2]).toString(16).slice(1).toUpperCase();
 }
-
 function createCustomizationContainer() {
     const customizationContainer = document.createElement('div');
     customizationContainer.className = 'settings-container';
@@ -102,9 +101,9 @@ function createSettingsTabs() {
     const customizationButton = createTabButton('Customization', 'mycustomization', tabContainerSettings);
     tabContainerSettings.appendChild(settingsButton);
     tabContainerSettings.appendChild(customizationButton);
-    settingsContainer = createSettingsContainer();
+    const settingsContainer = createSettingsContainer();
     tabContainerSettings.appendChild(createTabContent('mysettings', settingsContainer));
-    customizationContainer = createCustomizationContainer();
+    const customizationContainer = createCustomizationContainer();
     tabContainerSettings.appendChild(createTabContent('mycustomization', customizationContainer));
     document.querySelector('.start-button-container').appendChild(tabContainerSettings);
     settingsButton.click();
@@ -128,14 +127,12 @@ function setCursor(size) {
         cursorImg.src = `resources/cursors/circle_${size}.png`;
     }
 }
-
 function createScoreValueElement(value) {
     const span = document.createElement('span');
     span.className = 'scoreValue';
     span.textContent = value;
     return span;
 }
-
 function createTableRowElement(label, value) {
     const tr = document.createElement('tr');
     const tdLabel = document.createElement('td');
@@ -146,7 +143,6 @@ function createTableRowElement(label, value) {
     tr.appendChild(tdValue);
     return tr;
 }
-
 function createStatsElement(ballToCatch, totalTime, averageTime, minTime, maxTime, ballSizeP) {
     const table = document.createElement('table');
     table.className = 'statsTable';
@@ -160,7 +156,6 @@ function createStatsElement(ballToCatch, totalTime, averageTime, minTime, maxTim
     table.appendChild(averageRow);
     return table;
 }
-
 function createTabButton(text, targetId, tabContainer) {
     const button = document.createElement('button');
     button.className = 'tab-button';
@@ -171,7 +166,6 @@ function createTabButton(text, targetId, tabContainer) {
     };
     return button;
 }
-
 function createTabContent(id, content) {
     const div = document.createElement('div');
     div.id = id;
@@ -179,7 +173,6 @@ function createTabContent(id, content) {
     div.appendChild(content);
     return div;
 }
-
 function createWinMessage(ballToCatch, totalTime, minTime, maxTime, averageTime, ballSizeP, reactionTimesList) {
     const winMessage = document.getElementById('win-message');
     winMessage.innerHTML = '';
@@ -204,4 +197,67 @@ function createWinMessage(ballToCatch, totalTime, minTime, maxTime, averageTime,
     winMessage.appendChild(tabContainer);
 
     chartButton.click(); // Show the first tab by default
+}
+function setToDefault() {
+    for (var setting in DEFAULTS) {
+        var slider = document.getElementById(setting);
+        var value = DEFAULTS[setting];
+        if (slider !== null) {
+            slider.value = value;
+            updateLabel(setting);
+        }
+
+    }
+    setCursor(DEFAULTS["cursor-size"]);
+}
+function saveSettings(settings) {
+    localStorage.setItem('settings', JSON.stringify(settings));
+}
+function loadSettings() {
+    var storedSettings = localStorage.getItem('settings');
+    if (storedSettings) {
+        var settings = JSON.parse(storedSettings);
+        var settingsMap = {
+            ballsToCatch: 'balls-to-catch',
+            ballSize: 'ball-size',
+            cursorSize: 'cursor-size',
+            minimalDistance: 'minimal-distance'
+        };
+        setCursor(settings.cursorSize);
+        for (var setting in settings) {
+            var sliderId = settingsMap[setting];
+            var value = settings[setting];
+            var slider = document.getElementById(sliderId);
+            if (slider) {
+                slider.value = value;
+                updateLabel(sliderId);
+            }
+        }
+    } else {
+        setToDefault();
+    }
+}
+function updateLabel(setting) {
+    var slider = document.getElementById(setting);
+    var valueLabel = document.getElementById(setting + '-value');
+    var value = slider.value;
+    valueLabel.textContent = value + (setting === 'ball-size' || setting === 'minimal-distance' ? '%' : '');
+}
+function getSettings() {
+    var ballsToCatch = parseInt(document.getElementById('balls-to-catch').value);
+    var ballSize = parseInt(document.getElementById('ball-size').value);
+    var cursorSize = parseInt(document.getElementById('cursor-size').value);
+    setCursor(cursorSize);
+    var minimalDistance = DEFAULTS['minimal-distance'];
+
+    var settings = {
+        ballsToCatch: ballsToCatch,
+        ballSize: ballSize,
+        cursorSize: cursorSize,
+        minimalDistance: minimalDistance
+    };
+
+    saveSettings(settings);
+
+    return settings;
 }

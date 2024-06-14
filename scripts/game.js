@@ -43,7 +43,6 @@ class AntiBallsheetGame {
         this.minDistance = (this.fieldSize - this.ballSize) * this.distanceRatio;
 
     }
-
     updateSizes() {
         this.ball.style.width = this.ball.style.height = `${this.ballSize}px`;
         this.gameContainer.style.width = this.gameContainer.style.height = `${this.fieldSize}px`;
@@ -82,12 +81,10 @@ class AntiBallsheetGame {
         this.ball.style.transform = ballTransform;
         this.lastHitTime = Date.now();
     }
-
     updateTimer() {
         const elapsedTime = (Date.now() - this.startTime) / 1000;
         this.timerDisplay.textContent = `Time: ${elapsedTime.toFixed(2)}s`;
     }
-
     startGame() {
         this.configure();
         document.getElementById('title').textContent = "";
@@ -108,7 +105,6 @@ class AntiBallsheetGame {
         this.lastHitTime = Date.now();
         this.interval = setInterval(this.updateTimer.bind(this), 10);
     }
-
     endGame() {
         document.getElementById('title').textContent = TITLE;
         document.documentElement.style.overflow = "visible";
@@ -118,7 +114,6 @@ class AntiBallsheetGame {
         this.startButtonContainer.style.display = 'block';
         this.gameContainer.style.display = 'none';
     }
-
     updateDisplay() {
         this.ballsLeftDisplay.textContent = `Balls Left: ${this.ballsLeft}`;
     }
@@ -156,7 +151,6 @@ class AntiBallsheetGame {
             this.abortGame();
         }
     }
-
     showResults() {
         const totalTime = (Date.now() - this.startTime) / 1000;
         const averageTime = this.reactionTimes.reduce((a, b) => a + b, 0) / this.reactionTimes.length;
@@ -167,7 +161,6 @@ class AntiBallsheetGame {
         this.winMessage.style.display = 'block';
         this.displayChart();
     }
-
     displayChart() {
         const ctx = document.getElementById('reaction-time-chart').getContext('2d');
 
@@ -201,92 +194,9 @@ class AntiBallsheetGame {
             }
         });
     }
-
     addEventListeners() {
         this.hitbox.addEventListener('mouseover', this.handleHit.bind(this));
         document.addEventListener('keydown', this.handleRestart.bind(this));
         this.startButton.addEventListener('click', this.launchGame.bind(this));
     }
-}
-document.getElementById('balls-to-catch').addEventListener('input', function () {
-    updateLabel('balls-to-catch');
-});
-
-document.getElementById('ball-size').addEventListener('input', function () {
-    updateLabel('ball-size');
-});
-
-document.getElementById('cursor-size').addEventListener('input', function () {
-    var cursorSize = parseInt(document.getElementById('cursor-size').value);
-    setCursor(cursorSize);
-    updateLabel('cursor-size');
-});
-document.getElementById('set-to-default').addEventListener('click', function () {
-    setToDefault();
-});
-loadSettings();
-function setToDefault() {
-    for (var setting in DEFAULTS) {
-        var slider = document.getElementById(setting);
-        var value = DEFAULTS[setting];
-        if (slider !== null) {
-            slider.value = value;
-            updateLabel(setting);
-        }
-
-    }
-    setCursor(DEFAULTS["cursor-size"]);
-}
-function saveSettings(settings) {
-    localStorage.setItem('settings', JSON.stringify(settings));
-}
-function loadSettings() {
-    var storedSettings = localStorage.getItem('settings');
-    if (storedSettings) {
-        var settings = JSON.parse(storedSettings);
-        var settingsMap = {
-            ballsToCatch: 'balls-to-catch',
-            ballSize: 'ball-size',
-            cursorSize: 'cursor-size',
-            minimalDistance: 'minimal-distance'
-        };
-        setCursor(settings.cursorSize);
-        for (var setting in settings) {
-            var sliderId = settingsMap[setting];
-            var value = settings[setting];
-            var slider = document.getElementById(sliderId);
-            if (slider) {
-                slider.value = value;
-                updateLabel(sliderId);
-            }
-        }
-    } else {
-        setToDefault();
-    }
-}
-
-function updateLabel(setting) {
-    var slider = document.getElementById(setting);
-    var valueLabel = document.getElementById(setting + '-value');
-    var value = slider.value;
-    valueLabel.textContent = value + (setting === 'ball-size' || setting === 'minimal-distance' ? '%' : '');
-}
-
-function getSettings() {
-    var ballsToCatch = parseInt(document.getElementById('balls-to-catch').value);
-    var ballSize = parseInt(document.getElementById('ball-size').value);
-    var cursorSize = parseInt(document.getElementById('cursor-size').value);
-    setCursor(cursorSize);
-    var minimalDistance = DEFAULTS['minimal-distance'];
-
-    var settings = {
-        ballsToCatch: ballsToCatch,
-        ballSize: ballSize,
-        cursorSize: cursorSize,
-        minimalDistance: minimalDistance
-    };
-
-    saveSettings(settings);
-
-    return settings;
 }

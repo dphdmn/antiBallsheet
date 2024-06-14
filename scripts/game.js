@@ -9,7 +9,7 @@ class AntiBallsheetGame {
         this.winMessage = winMessage;
         this.startButton = startButton;
         this.startButtonContainer = startButtonContainer;
-
+        this.statsObject = null;
         this.audio = new Audio('resources/boop.wav');
         this.randomPositions = [];
         this.interval = null;
@@ -85,6 +85,7 @@ class AntiBallsheetGame {
         const elapsedTime = (Date.now() - this.startTime) / 1000;
         this.timerDisplay.textContent = `Time: ${elapsedTime.toFixed(2)}s`;
     }
+
     startGame() {
         this.configure();
         document.getElementById('title').textContent = "";
@@ -105,12 +106,25 @@ class AntiBallsheetGame {
         this.lastHitTime = Date.now();
         this.interval = setInterval(this.updateTimer.bind(this), 10);
     }
-    endGame() {
+    initStats(category) {
+        if (this.statsObject !== null && this.statsObject.name === category) {
+            return;
+        }
+        let gamestats = new GameStats(category);
+        gamestats.addParameter('time', true);
+        gamestats.addParameter('averageTime', true);
+        gamestats.addParameter('minAvgTime', true);
+        gamestats.addParameter('maxAvgTime', true);
+        this.statsObject = gamestats;
+    }
+    defineCategory() {
+        return String(this.ballToCatch) + ', ' + String(this.ballSizeP);
+    }
+    stopGame() {
         document.getElementById('title').textContent = TITLE;
         document.documentElement.style.overflow = "visible";
         document.body.style.overflow = "visible";
         clearInterval(this.interval);
-        this.showResults();
         this.startButtonContainer.style.display = 'block';
         this.gameContainer.style.display = 'none';
     }
@@ -129,7 +143,9 @@ class AntiBallsheetGame {
         this.audio.play();
         this.updateDisplay();
         if (this.ballsLeft === 0) {
-            this.endGame();
+            this.stopGame();
+            this.initStats(this.defineCategory());
+            this.showResults();
         }
     }
     launchGame() {
@@ -138,8 +154,7 @@ class AntiBallsheetGame {
         this.startGame();
     }
     abortGame() {
-        this.endGame();
-        this.winMessage.style.display = 'none';
+        this.stopGame();
         this.timerDisplay.textContent = "";
         this.ballsLeftDisplay.textContent = "";
     }
@@ -157,7 +172,7 @@ class AntiBallsheetGame {
         const minTime = Math.min(...this.reactionTimes);
         const maxTime = Math.max(...this.reactionTimes);
         const reactionTimesList = this.reactionTimes.join(', ');
-        createWinMessage(this.ballToCatch, totalTime, minTime, maxTime, averageTime, this.ballSizeP, reactionTimesList);
+        createWinMessage(this.statsObject, this.ballToCatch, totalTime, minTime, maxTime, averageTime, this.ballSizeP, reactionTimesList);
         this.winMessage.style.display = 'block';
         this.displayChart();
     }

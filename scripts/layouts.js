@@ -85,21 +85,7 @@ function createSettingsContainer() {
 
     return settingsContainer;
 }
-function createSettingsTabs() {
-    const tabContainerSettings = document.createElement('div');
-    tabContainerSettings.className = 'tab-container';
-    tabContainerSettings.style.textAlign = "center";
-    const settingsButton = createTabButton('Settings', 'mysettings', tabContainerSettings);
-    const customizationButton = createTabButton('Customization', 'mycustomization', tabContainerSettings);
-    tabContainerSettings.appendChild(settingsButton);
-    tabContainerSettings.appendChild(customizationButton);
-    const settingsContainer = createSettingsContainer();
-    tabContainerSettings.appendChild(createTabContent('mysettings', settingsContainer));
-    const customizationContainer = createCustomizationContainer();
-    tabContainerSettings.appendChild(createTabContent('mycustomization', customizationContainer));
-    document.querySelector('.start-button-container').appendChild(tabContainerSettings);
-    settingsButton.click();
-}
+
 function setCursor(size) {
     const html = document.documentElement;
 
@@ -151,8 +137,22 @@ function createTabButton(text, targetId, tabContainer) {
     button.className = 'tab-button';
     button.textContent = text;
     button.onclick = () => {
-        tabContainer.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-        tabContainer.querySelector(`#${targetId}`).classList.add('active');
+        const tabContents = tabContainer.querySelectorAll('.tab-content');
+        const targetTab = tabContainer.querySelector(`#${targetId}`);
+        
+        if (tabContents.length === 0) {
+            console.warn('No tab contents found.');
+            return;
+        }
+        
+        if (!targetTab) {
+            console.warn(`No tab content found with ID: ${targetId}`);
+            console.warn(tabContainer);
+            return;
+        }
+        
+        tabContents.forEach(tab => tab.classList.remove('active'));
+        targetTab.classList.add('active');
     };
     return button;
 }
@@ -163,29 +163,83 @@ function createTabContent(id, content) {
     div.appendChild(content);
     return div;
 }
-function createWinMessage(ballToCatch, totalTime, minTime, maxTime, averageTime, ballSizeP, reactionTimesList) {
+function appendStats(statsObject, time, minAvgTime, maxAvgTime, averageTime) {
+    statsObject.add({ time, averageTime, minAvgTime, maxAvgTime });
+    const historyChartContainer = document.createElement('div');
+    historyChartContainer.style.maxWidth = "800px";
+    historyChartContainer.style.minHeight = "400px";
+    const historyRawDataContainer = document.createElement('div');
+    const rawStatsData = document.createElement('p');
+    rawStatsData.textContent = statsObject.getAllScores();
+    historyRawDataContainer.style.display = "flex";
+    historyRawDataContainer.style.justifyContent = "center";
+    rawStatsData.style.overflowY = "scroll";
+    historyRawDataContainer.appendChild(rawStatsData);
+    rawStatsData.style.maxWidth = "500px";
+    rawStatsData.style.maxHeight = "300px";
+    statsObject.createGraph(['time', 'averageTime', 'minAvgTime', 'maxAvgTime'], historyChartContainer);
+    const tabContainerScoresHistory = createTabBlock('scores-history', ['Chart', 'Raw data'], [historyChartContainer, historyRawDataContainer]);
+    tabContainerScoresHistory.id = "scores-history-tabs";
+    const existingElement = document.getElementById("scores-history-tabs");
+
+    if (existingElement) existingElement.parentNode.removeChild(existingElement);
+    const removeLastScoreButton = document.createElement('button');
+    removeLastScoreButton.classList.add("dangerousButton");
+    removeLastScoreButton.textContent = "Remove last score";
+    removeLastScoreButton.style.marginRight = "10px";
+    removeLastScoreButton.addEventListener('click', function() {
+        statsObject.removeLastScore(true);
+        rawStatsData.textContent = statsObject.getAllScores();
+        statsObject.createGraph(['time', 'averageTime', 'minAvgTime', 'maxAvgTime'], historyChartContainer);
+    });
+
+    const removeAllScoresButton = document.createElement('button');
+    removeAllScoresButton.textContent = "Remove all scores";
+    removeAllScoresButton.classList.add("dangerousButton");
+    removeAllScoresButton.addEventListener('click', function() {
+        statsObject.removeAllScores(true);
+        rawStatsData.textContent = statsObject.getAllScores();
+        statsObject.createGraph(['time', 'averageTime', 'minAvgTime', 'maxAvgTime'], historyChartContainer);
+    });
+    const buttonContainer = document.createElement('div');
+    buttonContainer.style.marginTop = "10px";
+    buttonContainer.appendChild(removeLastScoreButton);
+    buttonContainer.appendChild(removeAllScoresButton);
+
+    tabContainerScoresHistory.appendChild(buttonContainer);
+    document.querySelector('.start-button-container').appendChild(tabContainerScoresHistory);
+}
+function createTabBlock(blockName, buttonLabels, tabData) {
+    const tabContainer = document.createElement('div');
+    tabContainer.className = 'tab-container';
+    const buttons = buttonLabels.map((label, index) => {
+        return createTabButton(label, `tab-${blockName}-${index}`, tabContainer);
+    });
+    tabContainer.append(...buttons);
+    tabData.forEach((data, index) => {
+        const content = createTabContent(`tab-${blockName}-${index}`, data);
+        tabContainer.appendChild(content);
+    });
+    tabContainer.children[0].click();
+    tabContainer.style.textAlign = "center";
+    return tabContainer;
+}
+function createSettingsTabs() {
+    const tabContainerSettings = createTabBlock('settings', ['Settings', 'Customization'], [createSettingsContainer(), createCustomizationContainer()]);
+    document.querySelector('.start-button-container').appendChild(tabContainerSettings);
+}
+function createWinMessage(statsObject, ballToCatch, totalTime, minTime, maxTime, averageTime, ballSizeP, reactionTimesList) {
     const winMessage = document.getElementById('win-message');
     winMessage.innerHTML = '';
     winMessage.appendChild(createStatsElement(ballToCatch, totalTime, averageTime, minTime, maxTime, ballSizeP));
-
-    const tabContainer = document.createElement('div');
-    tabContainer.className = 'tab-container';
-
     const chartCanvas = document.createElement('canvas');
     chartCanvas.id = 'reaction-time-chart';
-
     const reactionList = document.createElement('p');
     reactionList.id = 'reaction-times-list';
     reactionList.textContent = reactionTimesList;
-    const chartButton = createTabButton('Chart', 'chart-tab', tabContainer);
-    const listButton = createTabButton('List', 'list-tab', tabContainer);
-    tabContainer.appendChild(chartButton);
-    tabContainer.appendChild(listButton);
-    tabContainer.appendChild(createTabContent('chart-tab', chartCanvas));
-    tabContainer.appendChild(createTabContent('list-tab', reactionList));
-
-    winMessage.appendChild(tabContainer);
-    chartButton.click();
+    tabBlockReactionGraph = createTabBlock('reaction-graph', ['Chart', 'List'], [chartCanvas, reactionList]);
+    winMessage.appendChild(tabBlockReactionGraph);
+    appendStats(statsObject, totalTime, minTime, maxTime, averageTime);
 }
 function setToDefault() {
     for (var setting in DEFAULTS) {

@@ -1,0 +1,291 @@
+body,
+html {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #111;
+    color: white;
+    align-items: flex-start;
+    overflow: hidden;
+}
+
+.game-container {
+    top: 10px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    background-color: #000;
+    border: 2px solid rgba(0, 255, 255, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+#ball {
+    position: absolute;
+    left: 0;
+    top: 0;
+    will-change: transform;
+    pointer-events: none;
+    background-color: #fa96c8;
+    border-radius: 50%;
+}
+
+#hitbox {
+    position: absolute;
+    left: 0;
+    top: 0;
+    will-change: transform;
+    border-radius: 50%;
+    background-color: transparent;
+}
+
+.info {
+    position: absolute;
+    top: 10px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 10px;
+    box-sizing: border-box;
+    opacity: 0.5;
+}
+
+.info div {
+    font-size: 24px;
+}
+
+.win-message {
+    display: none;
+    font-size: 20px;
+    text-align: center;
+    min-width: 800px;
+    max-width: 800px;
+    justify-content: center;
+}
+
+.start-button-container {
+
+    display: block;
+    cursor: auto;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    top: 50px;
+}
+
+.start-button {
+    min-width: 800px;
+    border: 1px solid cyan;
+    padding: 10px 10px;
+    background-color: #111;
+    border-radius: 50px;
+    color: white;
+    font-size: 14px;
+    margin-bottom: 10px;
+    opacity: 0.3;
+}
+
+.start-button:hover {
+    opacity: 1;
+}
+
+.scoreValue {
+    color: cyan;
+    font-weight: bold;
+}
+
+#reaction-times-list {
+    font-size: 18px;
+    max-height: 100px;
+    overflow-y: scroll;
+    word-break: break-all;
+    white-space: normal;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+#reaction-times-list::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+#reaction-times-list {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+.settings-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.setting {
+    margin: 10px 0;
+    width: 80%;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    text-align: center;
+    user-select: none;
+}
+
+.range-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    margin: 5px 0;
+    height: 10px;
+    background: #333;
+    border-radius: 5px;
+    outline: none;
+    transition: background 0.3s;
+    background: linear-gradient(to right, #008b8b, #AA336A);
+}
+
+.range-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(26, 115, 232, 0.5);
+    transition: background 0.3s, box-shadow 0.3s;
+}
+
+.range-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #1a73e8;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(26, 115, 232, 0.5);
+    transition: background 0.3s, box-shadow 0.3s;
+}
+
+.range-slider::-webkit-slider-thumb:hover,
+.range-slider::-moz-range-thumb:hover {
+    background: #5591e8;
+    box-shadow: 0 0 15px rgba(26, 115, 232, 0.7);
+}
+
+.range-slider::-webkit-slider-thumb:active,
+.range-slider::-moz-range-thumb:active {
+    background: #3367d6;
+    box-shadow: 0 0 20px rgba(26, 115, 232, 1);
+}
+
+.range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #888888;
+    user-select: none;
+}
+
+#cursor-size {
+    direction: rtl;
+}
+
+#ball-size {
+    direction: rtl;
+}
+
+#timer {
+    min-width: 150px;
+}
+
+#balls-left {
+    min-width: 150px;
+}
+
+.default-button {
+    background-color: pink;
+    color: black;
+    border: none;
+    padding: 20px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 20px;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+}
+
+.default-button:hover {
+    background-color: cyan;
+}
+
+.tab-container {
+    margin-top: 5px;
+    background-color: #1e1e1e;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.tab-button {
+    padding: 12px 20px;
+    cursor: pointer;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    margin-right: 10px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.tab-button:hover,
+.tab-button:focus {
+    background-color: #555;
+    color: #ddd;
+}
+
+.tab-button.active {
+    background-color: #555;
+    color: #ddd;
+}
+
+.tab-content {
+    display: none;
+    margin-top: 10px;
+    padding: 15px;
+    background-color: #1a1a1a;
+    color: #ccc;
+    border-radius: 8px;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+.tab-content.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.statsTable {
+    margin: 0 auto;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+.statsTable td {
+    border: 2px solid pink;
+    padding: 5px 30px;
+}
+
+.statsTable .scoreValue {
+    font-weight: bold;
+}

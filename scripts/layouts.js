@@ -106,14 +106,12 @@ function setCursor(size) {
     if (size === 0) {
         html.style.cursor = 'auto';
     } else {
-        // Create a new Image object to preload the cursor
         const cursorImg = new Image();
         cursorImg.onload = function () {
             const cursorUrl = `url('${cursorImg.src}') ${size / 2} ${size / 2}, not-allowed`;
             html.style.cursor = cursorUrl;
         };
         cursorImg.onerror = function () {
-            // Handle error if the image fails to load
             console.error("Failed to preload cursor image");
         };
         cursorImg.src = `resources/cursors/circle_${size}.png`;
@@ -187,8 +185,7 @@ function createWinMessage(ballToCatch, totalTime, minTime, maxTime, averageTime,
     tabContainer.appendChild(createTabContent('list-tab', reactionList));
 
     winMessage.appendChild(tabContainer);
-
-    chartButton.click(); // Show the first tab by default
+    chartButton.click();
 }
 function setToDefault() {
     for (var setting in DEFAULTS) {

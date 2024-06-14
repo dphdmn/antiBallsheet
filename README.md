@@ -11,3 +11,9 @@ antiBallsheet is an engaging reaction game built as an improvement over an old p
 - **Clean Interface**: Experience a user-friendly interface free from complicated stats, unnecessary controls, and flashing numbers during gameplay.
 - **Interactive Graphs**: Utilize much better graph powered by the graph.js library.
 - **Custom styles**: You can change colors as much as you like! (Custom cursor colors not yet implemented, but you can disable it, by setting size to 0, then it would use your default windows cursor)
+
+### When beta is over:
+
+Game is almost ready for the first "real" version, for that there must be robust PB history system. 
+
+No changes after release should affect how game works and older PBs must be consistent between following possible "imporving" updates, such as more stats info / visual or customizations improvement, like different colors of cursors, for example.

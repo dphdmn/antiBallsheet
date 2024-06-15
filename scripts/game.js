@@ -79,10 +79,10 @@ class AntiBallsheetGame {
         const { hitboxTransform, ballTransform } = this.randomPositions[this.currentPositionIndex++];
         this.hitbox.style.transform = hitboxTransform;
         this.ball.style.transform = ballTransform;
-        this.lastHitTime = Date.now();
+        this.lastHitTime = performance.now();
     }
     updateTimer() {
-        const elapsedTime = (Date.now() - this.startTime) / 1000;
+        const elapsedTime = (performance.now() - this.startTime) / 1000;
         this.timerDisplay.textContent = `Time: ${elapsedTime.toFixed(2)}s`;
     }
 
@@ -102,8 +102,8 @@ class AntiBallsheetGame {
         this.updateSizes();
         this.generateRandomPositions();
         this.moveBall();
-        this.startTime = Date.now();
-        this.lastHitTime = Date.now();
+        this.startTime = performance.now();
+        this.lastHitTime = performance.now();
         this.interval = setInterval(this.updateTimer.bind(this), 10);
     }
     initStats(category) {
@@ -137,7 +137,7 @@ class AntiBallsheetGame {
         if (this.ballsLeft > 0) {
             this.moveBall();
         }
-        const hitTime = Date.now();
+        const hitTime = performance.now();
         const reactionTime = (hitTime - lastHitTime) / 1000;
         this.reactionTimes.push(reactionTime);
         this.audio.play();
@@ -167,7 +167,7 @@ class AntiBallsheetGame {
         }
     }
     showResults() {
-        const totalTime = (Date.now() - this.startTime) / 1000;
+        const totalTime = (performance.now() - this.startTime) / 1000;
         const averageTime = this.reactionTimes.reduce((a, b) => a + b, 0) / this.reactionTimes.length;
         const minTime = Math.min(...this.reactionTimes);
         const maxTime = Math.max(...this.reactionTimes);
